@@ -1,53 +1,108 @@
 import json
+from collections import defaultdict
+from typing import List, Dict, Any
 
 import requests
-from requests.packages import package
 
 from src.logging_config import logger
+from src.models import Package
 
-def get_data_from_url(branch):
-    url = f"https://rdb.altlinux.org/api/export/branch_binary_packages/{branch}"
-    try:
-        response = requests.get(url)
-        data = response.json()
-        return data
-    except Exception:
-        logger.error(f"Непредвиденная ошибка при попытке получения данных по url в ветке {branch}", exc_info=True)
 
-def get_data_from_file(branch):
-    try:
-        with open(f'{branch}.json', 'r', encoding='utf-8') as file:
-            data = json.load(file)
-        return data
-    except Exception:
-        logger.error(f"Непредвиденная ошибка при попытке получения данных из файла {branch}.json", exc_info=True)
-
-def explore_api():
+class DataExplorer:
     branches = ['sisyphus', 'p11']
-    for branch in branches:
+
+    def __init__(self):
+        self.data = {}
+        self.sisyphus_raw: List[Dict[str, Any]] | None = None
+        self.p11_raw: List[Dict[str, Any]] | None = None
+
+        self.sisyphus_packages: List[Package] = []
+        self.p11_packages: List[Package] = []
+
+        self.sisyphus_packages_names: Dict[str, set[str]] | Dict[Any, Any] = defaultdict(set)
+        self.p11_packages_names: Dict[str, set[str]] | Dict[Any, Any] = defaultdict(set)
+
+        self.p11_packages_by_arch: Dict[str, List[Package]] | Dict[Any, Any] = defaultdict(list)
+
+    @staticmethod
+    def get_data_from_url(branch):
+        url = f"https://rdb.altlinux.org/api/export/branch_binary_packages/{branch}"
         try:
-            data = get_data_from_file(branch)
-            if data is None:
-                logger.info(f"No data in file {branch}.json")
-                return
+            response = requests.get(url)
+            data = response.json()
+            return data
+        except Exception:
+            logger.error(f"Непредвиденная ошибка при попытке получения данных по url в ветке {branch}", exc_info=True)
 
-            # Исследуйте:
-            logger.info(f"Branch: {branch}")
-            logger.info(f"Total keys of data: {len(data)}")
+    @staticmethod
+    def get_data_from_file(branch):
+        try:
+            with open(f'{branch}.json', 'r', encoding='utf-8') as file:
+                data = json.load(file)
+            return data
+        except Exception:
+            logger.error(f"Непредвиденная ошибка при попытке получения данных из файла {branch}.json", exc_info=True)
 
-            request_args = data.get("request_args")
-            length = data.get("length")
-            packages = data.get("packages")
+    def explore_api(self):
+        try:
+            for branch in self.branches:
+                data = self.get_data_from_file(branch)
+                if data is None:
+                    logger.info(f"No data in file {branch}.json")
+                    return
 
-            logger.info(f"Request args: {request_args}")
-            logger.info(f"Total length of packages: {length}")
-            logger.info(f"Packages keys: {packages[0].keys()}")
+                logger.info(f"Branch: {branch}")
+                self.data[branch] = data.get("packages")
+                logger.info(f"Branch {branch}, length {data.get("length")}")
 
-            for key in packages[0].keys():
-                logger.info(f"The type of value for key {key}: {type(packages[0].get(key))}")
-                logger.info(f"The value for key {key}: {packages[0].get(key)}")
-
-            logger.info(packages[0].keys())
+            self.data_processor()
 
         except Exception:
             logger.error(f"Непредвиденная ошибка", exc_info=True)
+
+    def data_processor(self):
+        self.sisyphus_raw = self.data.get("sisyphus")
+        self.p11_raw = self.data.get("p11")
+
+        # Преобразуем словари в объекты Package
+        if self.sisyphus_raw:
+            for pkg_dict in self.sisyphus_raw:
+                name = pkg_dict.get("name", "")
+                arch = pkg_dict.get("arch", "")
+                package = Package(
+                        name=name,
+                        epoch=pkg_dict.get("epoch", 0),
+                        version=pkg_dict.get("version", ""),
+                        release=pkg_dict.get("release", ""),
+                        arch=arch,
+                        buildtime=pkg_dict.get("buildtime", 0),
+                        source=pkg_dict.get("source", "")
+                    )
+                self.sisyphus_packages.append(package)
+                self.sisyphus_packages_names[arch].add(name)
+
+
+        if self.p11_raw:
+            for pkg_dict in self.p11_raw:
+                name = pkg_dict.get("name", "")
+                arch = pkg_dict.get("arch", "")
+                package = Package(
+                    name=name,
+                    epoch=pkg_dict.get("epoch", 0),
+                    version=pkg_dict.get("version", ""),
+                    release=pkg_dict.get("release", ""),
+                    arch=arch,
+                    buildtime=pkg_dict.get("buildtime", 0),
+                    source=pkg_dict.get("source", "")
+                )
+                self.p11_packages.append(package)
+                self.p11_packages_names[arch].add(name)
+
+        logger.info(f"Branch sisyphus, length {len(self.sisyphus_packages)}")
+        for package in self.sisyphus_packages:
+            arch = package.arch
+            self.sisyphus_packages_by_arch[arch].append(package)
+        logger.info(f"Branch p11, length {len(self.p11_packages)}")
+        for package in self.p11_packages:
+            arch = package.arch
+            self.p11_packages_by_arch[arch].append(package)
