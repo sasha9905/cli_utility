@@ -22,6 +22,7 @@ class DataExplorer:
         self.sisyphus_packages_names: Dict[str, set[str]] | Dict[Any, Any] = defaultdict(set)
         self.p11_packages_names: Dict[str, set[str]] | Dict[Any, Any] = defaultdict(set)
 
+        self.sisyphus_packages_by_arch: Dict[str, List[Package]] | Dict[Any, Any] = defaultdict(list)
         self.p11_packages_by_arch: Dict[str, List[Package]] | Dict[Any, Any] = defaultdict(list)
 
     @staticmethod
