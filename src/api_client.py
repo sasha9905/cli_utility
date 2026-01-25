@@ -16,14 +16,11 @@ class DataExplorer:
         self.sisyphus_raw: List[Dict[str, Any]] | None = None
         self.p11_raw: List[Dict[str, Any]] | None = None
 
-        self.sisyphus_packages: List[Package] = []
-        self.p11_packages: List[Package] = []
-
         self.sisyphus_packages_names: Dict[str, set[str]] | Dict[Any, Any] = defaultdict(set)
         self.p11_packages_names: Dict[str, set[str]] | Dict[Any, Any] = defaultdict(set)
 
-        self.sisyphus_packages_by_arch: Dict[str, List[Package]] | Dict[Any, Any] = defaultdict(list)
-        self.p11_packages_by_arch: Dict[str, List[Package]] | Dict[Any, Any] = defaultdict(list)
+        self.sisyphus_packages_by_arch: Dict[str, Dict[str, Package]] | Dict[Any, Any] = defaultdict(dict)
+        self.p11_packages_by_arch: Dict[str, Dict[str, Package]]| Dict[Any, Any] = defaultdict(dict)
 
     @staticmethod
     def get_data_from_url(branch):
@@ -79,7 +76,7 @@ class DataExplorer:
                         buildtime=pkg_dict.get("buildtime", 0),
                         source=pkg_dict.get("source", "")
                     )
-                self.sisyphus_packages.append(package)
+                self.sisyphus_packages_by_arch[arch][name] = package
                 self.sisyphus_packages_names[arch].add(name)
 
 
@@ -96,14 +93,6 @@ class DataExplorer:
                     buildtime=pkg_dict.get("buildtime", 0),
                     source=pkg_dict.get("source", "")
                 )
-                self.p11_packages.append(package)
+                self.p11_packages_by_arch[arch][name] = package
                 self.p11_packages_names[arch].add(name)
 
-        logger.info(f"Branch sisyphus, length {len(self.sisyphus_packages)}")
-        for package in self.sisyphus_packages:
-            arch = package.arch
-            self.sisyphus_packages_by_arch[arch].append(package)
-        logger.info(f"Branch p11, length {len(self.p11_packages)}")
-        for package in self.p11_packages:
-            arch = package.arch
-            self.p11_packages_by_arch[arch].append(package)

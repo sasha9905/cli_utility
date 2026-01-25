@@ -11,6 +11,7 @@ def main():
     processor = BranchProcessor(data_explorer)
     logger.info(processor.p11_not_in_sisyphus())
     logger.info(processor.sisyphus_not_in_p11())
+    logger.info(processor.version_release_comparison())
 
 
 if __name__ == '__main__':
