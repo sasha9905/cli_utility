@@ -3,16 +3,6 @@ import sys
 from src import logger, setup_argparse, DataExplorer, BranchProcessor
 
 
-# def main():
-#     """Entry point for CLI."""
-#     data_explorer = DataExplorer()
-#     data_explorer.explore_api()
-#
-#     processor = BranchProcessor(data_explorer)
-#     logger.info(processor.p11_not_in_sisyphus())
-#     logger.info(processor.sisyphus_not_in_p11())
-#     logger.info(processor.version_release_comparison())
-
 def main():
     """Точка входа CLI"""
     parser = setup_argparse()
