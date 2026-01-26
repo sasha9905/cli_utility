@@ -44,14 +44,14 @@ class DataExplorer:
     def explore_api(self):
         try:
             for branch in self.branches:
-                data = self.get_data_from_file(branch)
+                data = self.get_data_from_url(branch)
                 if data is None:
                     logger.info(f"No data in file {branch}.json")
                     return
 
                 logger.info(f"Branch: {branch}")
                 self.data[branch] = data.get("packages")
-                logger.info(f"Branch {branch}, length {data.get("length")}")
+                logger.info(f"Branch {branch}, length {data.get('length')}")
 
             self.data_processor()
 
