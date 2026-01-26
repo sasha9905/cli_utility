@@ -16,6 +16,11 @@ CLI utility for comparing binary packages between ALT Linux branches (Sisyphus a
 - Python 3.9+
 - pip (Python package manager)
 - Git
+#### Commands for ALT Linux
+- apt-get update
+- apt-get install -y python3 curl
+- curl -s https://bootstrap.pypa.io/get-pip.py | python3
+- apt-get install -y python3-module-virtualenv
 
 ### Setup
 
@@ -24,8 +29,8 @@ CLI utility for comparing binary packages between ALT Linux branches (Sisyphus a
 git clone https://github.com/sasha9905/cli_utility
 cd cli_utility
 
-# Create virtual environment (recommended)
-python3 -m venv .venv
+# Create virtual environment (optional)
+python3 -m virtualenv .venv
 source .venv/bin/activate
 
 # Install dependencies
