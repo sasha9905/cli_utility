@@ -71,7 +71,6 @@ class RPMVersionComparator:
             return []
 
         segments = []
-        current = ""
 
         i = 0
         while i < len(part):

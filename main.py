@@ -12,9 +12,17 @@ def main():
         # Инициализация DataExplorer
         logger.info(f"Инициализация DataExplorer")
         data_explorer = DataExplorer()
-        data_explorer.explore_api()
+        success = data_explorer.explore_api()
+        if not success:
+            logger.info(f"Некоторые ветки не загружены, завершение работы")
+            return
 
-        processor = BranchProcessor(data_explorer)
+        processor = BranchProcessor(
+            data_explorer.sisyphus_packages_by_arch,
+            data_explorer.p11_packages_by_arch,
+            data_explorer.sisyphus_packages_names,
+            data_explorer.p11_packages_names
+        )
 
         # Выполнение команды
         logger.info(f"Выполнение команды: {args.command}")
