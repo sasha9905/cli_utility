@@ -5,18 +5,13 @@ import pytest
 import requests
 
 from tests.fixtures.package_factory import create_package_dict
+from conftest import BaseAPITest
 
 
-class TestGetDataFromUrl:
+class TestGetDataFromUrl(BaseAPITest):
     """
     Тестирование метода get_data_from_url.
     """
-    @pytest.fixture(autouse=True)
-    def _setup(self, explorer, mock_requests):
-        """Этот метод будет вызываться автоматически перед каждым тестом."""
-        self.explorer = explorer
-        self.mock_requests = mock_requests
-
     @staticmethod
     def _assert_called_with_correct_url(mock_requests, branch="sisyphus"):
         """Проверяет, что requests.get вызван с правильным URL."""
