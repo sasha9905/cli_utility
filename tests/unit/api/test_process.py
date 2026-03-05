@@ -1,6 +1,6 @@
 from unittest.mock import MagicMock, patch
 
-from conftest import BaseAPITest
+from .conftest import BaseAPITest
 from tests.fixtures.package_factory import create_package_dict
 
 
@@ -9,22 +9,10 @@ class TestPackageProcessing(BaseAPITest):
         Тестирование обработки пакетов через explore_api.
     """
 
-    @staticmethod
-    def _mock_api_response(packages):
-        """Вспомогательный метод для мока API ответа."""
-        mock_response = MagicMock()
-        mock_response.json.return_value = {
-            "packages": packages,
-            "length": len(packages)
-        }
-        mock_response.raise_for_status.return_value = None
-        return mock_response
-
     def test_packages_grouped_by_architecture(self):
         """
             Проверка, что пакеты правильно группируются по архитектурам.
         """
-        # Подготовка
         sisyphus_data = {
             "packages": [
                 create_package_dict(name="firefox", arch="x86_64", version="116.0"),

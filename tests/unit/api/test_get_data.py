@@ -5,13 +5,14 @@ import pytest
 import requests
 
 from tests.fixtures.package_factory import create_package_dict
-from conftest import BaseAPITest
+from .conftest import BaseAPITestWithRequests
 
 
-class TestGetDataFromUrl(BaseAPITest):
+class TestGetDataFromUrl(BaseAPITestWithRequests):
     """
     Тестирование метода get_data_from_url.
     """
+
     @staticmethod
     def _assert_called_with_correct_url(mock_requests, branch="sisyphus"):
         """Проверяет, что requests.get вызван с правильным URL."""
