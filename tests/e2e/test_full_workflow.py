@@ -165,7 +165,8 @@ class TestEndToEnd:
         Запускаем программу как subprocess и проверяем вывод.
         """
         original_dir = os.getcwd()
-        main_script = Path(__file__).parent.parent.parent / "main.py"
+        project_root = Path(__file__).parent.parent.parent
+        main_script = project_root / "main.py"
         assert main_script.exists(), f"main.py не найден по пути: {main_script}"
 
         # Переходим во временную директорию для файлов
@@ -184,7 +185,8 @@ class TestEndToEnd:
 
                 # Запускаем с конкретной командой
                 result = subprocess.run(
-                    ["python", "-m", "main", cmd],
+                    ["python", str(main_script), cmd],
+                    cwd=tmp_path,
                     capture_output=True,
                     text=True
                 )
